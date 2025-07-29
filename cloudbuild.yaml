@@ -1,0 +1,12 @@
+steps:
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - 'gcloud'
+      - 'storage'
+      - 'cp'
+      - './code_base' 
+      - 'gs://us-central1-composer-advent-113d305c-bucket/dags/'
+      - '--recursive'
+
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
