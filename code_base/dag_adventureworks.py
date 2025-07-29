@@ -61,7 +61,7 @@ with DAG(
     schedule=None,
     start_date=pendulum.datetime(2024, 1, 1, tz="UTC"),
     catchup=False,
-    tags=["adventureworks"],
+    tags=["adventure_works"],
 ) as dag:
     create_cluster = DataprocCreateClusterOperator(
         task_id="create_dataproc_cluster",
