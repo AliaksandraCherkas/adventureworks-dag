@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from airflow.utils.trigger_rule import TriggerRule
 import pendulum
 
 from airflow.models.dag import DAG
@@ -84,6 +84,7 @@ with DAG(
         project_id=GCP_PROJECT_ID,
         cluster_name=CLUSTER_NAME,
         region=GCP_REGION,
+        trigger_rule=TriggerRule.ALL_DONE,
     )
 
     # Define the workflow sequence
