@@ -33,7 +33,7 @@ CLUSTER_CONFIG = {
             "https://www.googleapis.com/auth/cloud-platform"
         ],
         "metadata": {
-            "PIP_REQUIREMENTS_FILE": "gs://dags-bucket01/dags/code_base/requirements.txt",
+            "PIP_REQUIREMENTS_FILE": "gs://bct-base-adventureworks/scripts/requirements.txt",
             "enable-cloud-sql-proxy": "true",
             "cloud-sql-instances": "adventureworks-project-466602:us-central1:cld-sql-adventureworks",
         },
