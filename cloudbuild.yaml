@@ -5,7 +5,7 @@ steps:
       - 'storage'
       - 'cp'
       - './code_base' 
-      - 'gs://us-central1-composer-advent-113d305c-bucket/dags/'
+      - 'gs://dags-bucket01'
       - '--recursive'
 
 options:
