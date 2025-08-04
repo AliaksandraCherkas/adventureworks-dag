@@ -33,15 +33,12 @@ CLUSTER_CONFIG = {
             "https://www.googleapis.com/auth/cloud-platform"
         ],
         "metadata": {
-            "PIP_REQUIREMENTS_FILE": "gs://bct-base-adventureworks/scripts/requirements.txt",
             "enable-cloud-sql-proxy": "true",
             "cloud-sql-instances": "adventureworks-project-466602:us-central1:cld-sql-adventureworks",
         },
     },
     "initialization_actions": [
-        {
-            "executable_file": "gs://goog-dataproc-initialization-actions-us-central1/python/pip-install.sh"
-        }
+        {"executable_file": f"gs://{GCS_BUCKET}/scripts/install_dependencies.sh"},
     ],
 }
 
