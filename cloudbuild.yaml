@@ -5,7 +5,7 @@ steps:
       - 'storage'
       - 'cp'
       - './code_base' 
-      - 'gs://dags-bucket01'
+      - 'gs://dags-bucket01/dags'
       - '--recursive'
 
 options:
