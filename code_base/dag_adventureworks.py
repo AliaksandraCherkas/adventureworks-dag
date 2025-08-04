@@ -1,6 +1,7 @@
 from __future__ import annotations
-from airflow.utils.trigger_rule import TriggerRule
+
 import pendulum
+
 from airflow.models.dag import DAG
 from airflow.providers.google.cloud.operators.dataproc import (
     DataprocCreateClusterOperator,
@@ -20,7 +21,7 @@ GCS_BUCKET = "bct-base-adventureworks"
 CLUSTER_CONFIG = {
     "master_config": {
         "num_instances": 1, 
-        "machine_type_uri": "e2-standard-2",
+        "machine_type_uri": "n1-standard-2",
         "disk_config": {"boot_disk_size_gb": 100},
     },
     "worker_config": {
@@ -29,16 +30,10 @@ CLUSTER_CONFIG = {
     },
     "gce_cluster_config": {
         "service_account": DATAPROC_SA,
-        "service_account_scopes": [
-            "https://www.googleapis.com/auth/cloud-platform"
-        ],
-        "metadata": {
-            "enable-cloud-sql-proxy": "true",
-            "cloud-sql-instances": "adventureworks-project-466602:us-central1:cld-sql-adventureworks",
-        },
     },
     "initialization_actions": [
         {"executable_file": f"gs://{GCS_BUCKET}/scripts/install_dependencies.sh"},
+        {"executable_file": f"gs://{GCS_BUCKET}/scripts/start-proxy.sh"},
     ],
 }
 
@@ -89,7 +84,6 @@ with DAG(
         project_id=GCP_PROJECT_ID,
         cluster_name=CLUSTER_NAME,
         region=GCP_REGION,
-        trigger_rule=TriggerRule.ALL_DONE,
     )
 
     # Define the workflow sequence
