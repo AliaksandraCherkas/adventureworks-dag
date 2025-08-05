@@ -32,7 +32,7 @@ CLUSTER_CONFIG = {
         "service_account": DATAPROC_SA,
     },
     "initialization_actions": [
-        {"executable_file": f"gs://{GCS_BUCKET}/scripts/install_dependencies.sh"},
+        # {"executable_file": f"gs://{GCS_BUCKET}/scripts/install_dependencies.sh"},
         {"executable_file": f"gs://{GCS_BUCKET}/scripts/start-proxy.sh"},
     ],
 }
