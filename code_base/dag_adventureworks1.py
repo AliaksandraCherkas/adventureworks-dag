@@ -45,10 +45,6 @@ JOB_1_SQL_TO_PARQUET = {
         "jar_file_uris": [
             "gs://{{ var.value.gcs_bucket }}/scripts/jars/postgresql-42.7.7.jar"
         ],
-        "properties": {
-            # Jinja can also be used here if the requirements file path might change
-            "spark.dataproc.python.packages.requirements-file": "gs://{{ var.value.gcs_bucket }}/scripts/requirements.txt"
-        },
     },
 }
 
