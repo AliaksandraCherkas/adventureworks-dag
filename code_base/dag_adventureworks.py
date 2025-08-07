@@ -34,7 +34,7 @@ CLUSTER_CONFIG = {
     },
     "initialization_actions": [
         {"executable_file": f"gs://{GCS_BUCKET}/scripts/install_dependencies.sh"},
-        {"executable_file": f"gs://{GCS_BUCKET}/scripts/start-proxy.sh"},
+        {"executable_file": f"gs://{GCS_BUCKET}/scripts/start-proxy2.sh"},
     ],
 }
 
