@@ -41,7 +41,7 @@ JOB_1_SQL_TO_PARQUET = {
     "reference": {"project_id": "{{ var.value.gcp_project_id }}"},
     "placement": {"cluster_name": "{{ var.value.dataproc_cluster_name }}"},
     "pyspark_job": {
-        "main_python_file_uri": "gs://{{ var.value.gcs_bucket }}/scripts/code_base/db_to_parquet1.py"
+        "main_python_file_uri": "gs://{{ var.value.gcs_bucket }}/scripts/code_base/db_to_parquet1.py",
         "jar_file_uris": [
             "gs://{{ var.value.gcs_bucket }}/scripts/jars/postgresql-42.7.7.jar"
         ],
@@ -55,7 +55,7 @@ JOB_2_PARQUET_TO_BQ = {
     "reference": {"project_id": "{{ var.value.gcp_project_id }}"},
     "placement": {"cluster_name": "{{ var.value.dataproc_cluster_name }}"},
     "pyspark_job": {
-        "main_python_file_uri": "gs://{{ var.value.gcs_bucket }}/scripts/code_base/transform_to_bq1.py"
+        "main_python_file_uri": "gs://{{ var.value.gcs_bucket }}/scripts/code_base/transform_to_bq1.py",
         "properties": {
             # These variables will be available in the PySpark script via os.getenv()
             "spark.yarn.appMasterEnv.GCP_PROJECT_ID": "{{ var.value.gcp_project_id }}",
