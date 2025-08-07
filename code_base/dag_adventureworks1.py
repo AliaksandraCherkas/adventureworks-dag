@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from airflow.models.dag import DAG
+# Import the Variable model
+from airflow.models.variable import Variable
 from airflow.providers.google.cloud.operators.dataproc import (
     DataprocCreateClusterOperator,
     DataprocDeleteClusterOperator,
@@ -9,11 +11,24 @@ from airflow.providers.google.cloud.operators.dataproc import (
 from airflow.utils.dates import days_ago
 from airflow.utils.trigger_rule import TriggerRule
 
-# --- Configuration Dictionaries using Jinja Templating ---
-# Airflow will substitute the values from Airflow Variables at runtime.
+# --- Read Variables directly from Airflow DB using Python ---
+# This happens when the DAG is parsed.
+# The .strip() method is added as a safety measure to remove any accidental whitespace.
+gcp_project_id = Variable.get("gcp_project_id").strip()
+gcp_region = Variable.get("gcp_region").strip()
+gcs_bucket = Variable.get("gcs_bucket").strip()
+dataproc_cluster_name = Variable.get("dataproc_cluster_name").strip()
+dataproc_service_account = Variable.get("dataproc_service_account").strip()
+bq_dataset = Variable.get("bq_dataset").strip()
+cloud_sql_instance_connection_name = Variable.get("cloud_sql_instance_connection_name").strip()
+secret_id_db_user = Variable.get("secret_id_db_user").strip()
+secret_id_db_pass = Variable.get("secret_id_db_pass").strip()
+secret_id_db_name = Variable.get("secret_id_db_name").strip()
 
-# Dataproc Cluster Configuration
-# All values that might change between environments are templated.
+
+# --- Configuration Dictionaries using Python f-strings ---
+# We no longer use Jinja templates {{...}} here. We use Python variables directly.
+
 CLUSTER_CONFIG = {
     "master_config": {
         "num_instances": 1,
@@ -25,116 +40,91 @@ CLUSTER_CONFIG = {
         "disk_config": {"boot_disk_size_gb": 50},
     },
     "gce_cluster_config": {
-        "service_account": "{{ var.value.dataproc_service_account }}",
+        "service_account": dataproc_service_account,
         "metadata": {
-            "cloud-sql-instance-name": "{{ var.value.cloud_sql_instance_connection_name }}"
+            "cloud-sql-instance-name": cloud_sql_instance_connection_name
         }
     },
     "initialization_actions": [
-        {"executable_file": f"gs://{{ var.value.gcs_bucket }}/scripts/install_dependencies.sh"},
-        {"executable_file": "gs://{{ var.value.gcs_bucket }}/scripts/start-proxy1.sh"},
+        {"executable_file": f"gs://{gcs_bucket}/scripts/start-proxy.sh"},
     ],
 }
 
-# Job Definition 1: Ingest from SQL Database to Parquet files in GCS
 JOB_1_SQL_TO_PARQUET = {
-    "reference": {"project_id": "{{ var.value.gcp_project_id }}"},
-    "placement": {"cluster_name": "{{ var.value.dataproc_cluster_name }}"},
+    "reference": {"project_id": gcp_project_id},
+    "placement": {"cluster_name": dataproc_cluster_name},
     "pyspark_job": {
-        "main_python_file_uri": "gs://{{ var.value.gcs_bucket }}/scripts/db_to_parquet1.py",
-        "jar_file_uris": [
-            "gs://{{ var.value.gcs_bucket }}/scripts/jars/postgresql-42.7.7.jar"
-        ],
+        "main_python_file_uri": f"gs://{gcs_bucket}/scripts/db_to_parquet.py",
+        "jar_file_uris": [f"gs://{gcs_bucket}/scripts/jars/postgresql-42.7.7.jar"],
         "properties": {
-            # Jinja can also be used here if the requirements file path might change
-            "spark.dataproc.python.packages.requirements-file": "gs://{{ var.value.gcs_bucket }}/scripts/requirements.txt"
+            "spark.yarn.appMasterEnv.GCP_PROJECT_ID": gcp_project_id,
+            "spark.yarn.appMasterEnv.GCS_OUTPUT_BUCKET": gcs_bucket,
+            "spark.yarn.appMasterEnv.SECRET_ID_DB_USER": secret_id_db_user,
+            "spark.yarn.appMasterEnv.SECRET_ID_DB_PASS": secret_id_db_pass,
+            "spark.yarn.appMasterEnv.SECRET_ID_DB_NAME": secret_id_db_name,
+            "spark.executorEnv.GCP_PROJECT_ID": gcp_project_id,
+            "spark.executorEnv.GCS_OUTPUT_BUCKET": gcs_bucket,
+            "spark.executorEnv.SECRET_ID_DB_USER": secret_id_db_user,
+            "spark.executorEnv.SECRET_ID_DB_PASS": secret_id_db_pass,
+            "spark.executorEnv.SECRET_ID_DB_NAME": secret_id_db_name,
         },
     },
 }
 
-# Job Definition 2: Transform Parquet and Load to BigQuery
-# IMPORTANT: 'properties' section added to pass environment variables
-# to the second PySpark script (transform_to_bq.py).
 JOB_2_PARQUET_TO_BQ = {
-    "reference": {"project_id": "{{ var.value.gcp_project_id }}"},
-    "placement": {"cluster_name": "{{ var.value.dataproc_cluster_name }}"},
+    "reference": {"project_id": gcp_project_id},
+    "placement": {"cluster_name": dataproc_cluster_name},
     "pyspark_job": {
-        "main_python_file_uri": "gs://{{ var.value.gcs_bucket }}/scripts/transform_to_bq1.py",
+        "main_python_file_uri": f"gs://{gcs_bucket}/scripts/transform_to_bq.py",
         "properties": {
-            # These variables will be available in the PySpark script via os.getenv()
-            "spark.yarn.appMasterEnv.GCP_PROJECT_ID": "{{ var.value.gcp_project_id }}",
-            "spark.yarn.appMasterEnv.GCS_BUCKET": "{{ var.value.gcs_bucket }}",
-            "spark.yarn.appMasterEnv.BQ_DATASET": "{{ var.value.bq_dataset }}",
-            "spark.executorEnv.GCP_PROJECT_ID": "{{ var.value.gcp_project_id }}",
-            "spark.executorEnv.GCS_BUCKET": "{{ var.value.gcs_bucket }}",
-            "spark.executorEnv.BQ_DATASET": "{{ var.value.bq_dataset }}",
+            "spark.yarn.appMasterEnv.GCP_PROJECT_ID": gcp_project_id,
+            "spark.yarn.appMasterEnv.GCS_BUCKET": gcs_bucket,
+            "spark.yarn.appMasterEnv.BQ_DATASET": bq_dataset,
+            "spark.executorEnv.GCP_PROJECT_ID": gcp_project_id,
+            "spark.executorEnv.GCS_BUCKET": gcs_bucket,
+            "spark.executorEnv.BQ_DATASET": bq_dataset,
         },
     },
 }
 
 
 with DAG(
-    dag_id="adventureworks_etl_pipeline",
-    # Using a standard, non-triggered schedule
+    dag_id="adventureworks_etl_pipeline_v2", # Changed name to avoid conflicts
     schedule=None,
-    # Using a standard start_date method
     start_date=days_ago(1),
     catchup=False,
-    tags=["adventure_works", "production"],
-    # IMPORTANT: This allows Airflow to render Jinja templates inside Python objects (dicts, lists)
-    render_template_as_native_obj=True,
-    doc_md="""
-    ### AdventureWorks ETL Pipeline
-
-    This DAG orchestrates a complete ETL process using a temporary Dataproc cluster.
-
-    **Workflow:**
-    1.  **Creates** a temporary Dataproc cluster.
-    2.  **Submits** a PySpark job to extract data from a SQL database and save it as Parquet in GCS.
-    3.  **Submits** a second PySpark job to transform the Parquet data and load it into a BigQuery data warehouse.
-    4.  **Deletes** the Dataproc cluster upon completion or failure of the main tasks.
-
-    **Required Airflow Variables:**
-    - `gcp_project_id`
-    - `gcp_region`
-    - `gcs_bucket`
-    - `dataproc_cluster_name`
-    - `dataproc_service_account`
-    - `bq_dataset`
-    """,
+    tags=["adventure_works", "v2"],
+    doc_md="""### AdventureWorks ETL Pipeline (Direct Variable Access)""",
 ) as dag:
+    # Operators no longer need Jinja templating as the dicts are pre-formatted
     create_cluster = DataprocCreateClusterOperator(
         task_id="create_dataproc_cluster",
-        # Jinja templates are used to populate operator parameters from Airflow Variables
-        project_id="{{ var.value.gcp_project_id }}",
-        region="{{ var.value.gcp_region }}",
-        cluster_name="{{ var.value.dataproc_cluster_name }}",
-        # The cluster_config dict, containing templates, will be rendered by Airflow
+        project_id=gcp_project_id,
+        region=gcp_region,
+        cluster_name=dataproc_cluster_name,
         cluster_config=CLUSTER_CONFIG,
     )
 
     submit_job_1_sql_to_parquet = DataprocSubmitJobOperator(
         task_id="submit_job_1_sql_to_parquet",
-        project_id="{{ var.value.gcp_project_id }}",
-        region="{{ var.value.gcp_region }}",
+        project_id=gcp_project_id,
+        region=gcp_region,
         job=JOB_1_SQL_TO_PARQUET,
     )
 
     submit_job_2_parquet_to_bq = DataprocSubmitJobOperator(
         task_id="submit_job_2_parquet_to_bq",
-        project_id="{{ var.value.gcp_project_id }}",
-        region="{{ var.value.gcp_region }}",
+        project_id=gcp_project_id,
+        region=gcp_region,
         job=JOB_2_PARQUET_TO_BQ,
     )
 
     delete_cluster = DataprocDeleteClusterOperator(
         task_id="delete_dataproc_cluster",
-        project_id="{{ var.value.gcp_project_id }}",
-        region="{{ var.value.gcp_region }}",
-        cluster_name="{{ var.value.dataproc_cluster_name }}",
-        # This trigger rule ensures the cluster is always deleted, even if a job fails.
+        project_id=gcp_project_id,
+        region=gcp_region,
+        cluster_name=dataproc_cluster_name,
         trigger_rule=TriggerRule.ALL_DONE,
     )
 
-    # Define the workflow sequence using bitshift operators
     create_cluster >> submit_job_1_sql_to_parquet >> submit_job_2_parquet_to_bq >> delete_cluster
