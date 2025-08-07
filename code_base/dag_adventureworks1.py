@@ -45,6 +45,16 @@ JOB_1_SQL_TO_PARQUET = {
         "jar_file_uris": [
             "gs://{{ var.value.gcs_bucket }}/scripts/jars/postgresql-42.7.7.jar"
         ],
+        # --- THIS PROPERTIES BLOCK HAS BEEN ADDED ---
+        "properties": {
+            # Pass all environment variables the script needs to run.
+            "spark.yarn.appMasterEnv.GCP_PROJECT_ID": "{{ var.value.gcp_project_id }}",
+            "spark.yarn.appMasterEnv.GCS_OUTPUT_BUCKET": "{{ var.value.gcs_bucket }}",
+            "spark.yarn.appMasterEnv.SECRET_ID_DB_USER": "{{ var.value.secret_id_db_user }}",
+            "spark.yarn.appMasterEnv.SECRET_ID_DB_PASS": "{{ var.value.secret_id_db_pass }}",
+            "spark.yarn.appMasterEnv.SECRET_ID_DB_NAME": "{{ var.value.secret_id_db_name }}",
+
+        },
     },
 }
 
