@@ -33,7 +33,7 @@ CLUSTER_CONFIG = {
         "service_account": DATAPROC_SA,
     },
     "initialization_actions": [
-        # {"executable_file": f"gs://{GCS_BUCKET}/scripts/install_dependencies.sh"},
+        {"executable_file": f"gs://{GCS_BUCKET}/scripts/install_dependencies.sh"},
         {"executable_file": f"gs://{GCS_BUCKET}/scripts/start-proxy.sh"},
     ],
 }
@@ -45,9 +45,6 @@ JOB_1_SQL_TO_PARQUET = {
     "pyspark_job": {
         "main_python_file_uri": f"gs://{GCS_BUCKET}/scripts/db_to_parquet.py",
         "jar_file_uris": [f"gs://{GCS_BUCKET}/scripts/jars/postgresql-42.7.7.jar"],
-        "properties": {
-            "spark.dataproc.python.packages.requirements-file": f"gs://{GCS_BUCKET}/scripts/requirements.txt"
-        },
     },
 }
 
