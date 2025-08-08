@@ -58,7 +58,7 @@ JOB_2_PARQUET_TO_BQ = {
 
 
 with DAG(
-    dag_id="adventureworks_etl_pipe",
+    dag_id="adventureworks_pipeline",
     schedule=None,
     start_date=pendulum.datetime(2024, 1, 1, tz="UTC"),
     catchup=False,
