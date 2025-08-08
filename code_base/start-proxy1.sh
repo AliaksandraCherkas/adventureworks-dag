@@ -33,7 +33,7 @@ chmod +x /usr/local/bin/cloud-sql-proxy
 # --- Start the Proxy Using the Environment Variable ---
 echo "Starting Cloud SQL Proxy using the environment variable. Logging to ${PROXY_LOG_FILE}"
 # The script now references the environment variable we just set.
-nohup /usr/local/bin/cloud-sql-proxy "${CLOUD_SQL_CONNECTION_NAME}=tcp:5432" > "${PROXY_LOG_FILE}" 2>&1 &
+nohup /usr/local/bin/cloud-sql-proxy "${CLOUD_SQL_CONNECTION_NAME}=tcp:5433" > "${PROXY_LOG_FILE}" 2>&1 &
 
 sleep 3
 echo "✅ Cloud SQL Proxy process started successfully."
