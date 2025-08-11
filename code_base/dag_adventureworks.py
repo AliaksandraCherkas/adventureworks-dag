@@ -15,7 +15,8 @@ GCP_PROJECT_ID = "adventureworks-project-466602"
 GCP_REGION = "us-central1"
 CLUSTER_NAME = "composer-adventureworks"
 DATAPROC_SA = "sa-dataproc@adventureworks-project-466602.iam.gserviceaccount.com"
-GCS_BUCKET = "dags-bucket01"
+GCS_BUCKET = "bct-base-adventureworks"
+DAG_BUCKET = "dags-bucket01"
 JAR_PATH = "gs://bct-base-adventureworks/scripts/jars"
 
 
@@ -34,8 +35,8 @@ CLUSTER_CONFIG = {
         "service_account": DATAPROC_SA,
     },
     "initialization_actions": [
-        {"executable_file": f"gs://{GCS_BUCKET}/dags/code_base/install_dependencies.sh"},
-        {"executable_file": f"gs://{GCS_BUCKET}/dags/code_base/start-proxy.sh"},
+        {"executable_file": f"gs://{DAG_BUCKET}/dags/code_base/install_dependencies.sh"},
+        {"executable_file": f"gs://{DAG_BUCKET}/dags/code_base/start-proxy.sh"},
     ],
 }
 
