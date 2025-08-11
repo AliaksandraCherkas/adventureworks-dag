@@ -63,7 +63,7 @@ JOB_2_PARQUET_TO_BQ = {
         # <<< FIX 2: ADD THE BIGQUERY CONNECTOR JAR
         # Your second job writes to BigQuery and requires this connector. Without it,
         # the job would fail with a "ClassNotFoundException" for the "bigquery" format.
-        "jar_file_uris": ["gs://spark-lib/bigquery/spark-bigquery-with-dependencies_2.12-0.34.0.jar"],
+        # "jar_file_uris": ["gs://spark-lib/bigquery/spark-bigquery-with-dependencies_2.12-0.34.0.jar"],
     },
 }
 
