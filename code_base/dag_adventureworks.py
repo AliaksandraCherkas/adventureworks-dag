@@ -16,6 +16,7 @@ GCP_REGION = "us-central1"
 CLUSTER_NAME = "composer-adventureworks"
 DATAPROC_SA = "sa-dataproc@adventureworks-project-466602.iam.gserviceaccount.com"
 GCS_BUCKET = "dags-bucket01"
+JAR_PATH = "gs://bct-base-adventureworks/scripts/jars"
 
 
 # --- Cluster Definition ---
@@ -44,7 +45,7 @@ JOB_1_SQL_TO_PARQUET = {
     "placement": {"cluster_name": CLUSTER_NAME},
     "pyspark_job": {
         "main_python_file_uri": f"gs://{GCS_BUCKET}/scripts/code_base/db_to_parquet.py",
-        "jar_file_uris": [f"gs://{GCS_BUCKET}/scripts/jars/postgresql-42.7.7.jar"],
+        "jar_file_uris": [f"{JAR_PATH}/postgresql-42.7.7.jar"],
     },
 }
 
