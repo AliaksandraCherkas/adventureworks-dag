@@ -17,7 +17,7 @@ CLUSTER_NAME = "composer-adventureworks"
 DATAPROC_SA = "sa-dataproc@adventureworks-project-466602.iam.gserviceaccount.com"
 GCS_BUCKET = "bct-base-adventureworks"
 DAG_BUCKET = "dags-bucket01"
-JAR_PATH = "gs://bct-base-adventureworks/scripts/jars"
+JAR_PATH = f"gs://{GCS_BUCKET}/scripts/jars"
 
 
 # --- Cluster Definition ---
@@ -33,6 +33,11 @@ CLUSTER_CONFIG = {
     },
     "gce_cluster_config": {
         "service_account": DATAPROC_SA,
+        # <<< FIX 1: ADD SERVICE ACCOUNT SCOPES HERE
+        # This is the crucial fix for the "Anonymous caller" error. It allows the
+        # cluster's service account to use the permissions it has been granted for
+        # other Google Cloud services like GCS, Secret Manager, and Cloud SQL.
+        "service_account_scopes": ["https://www.googleapis.com/auth/cloud-platform"],
     },
     "initialization_actions": [
         {"executable_file": f"gs://{DAG_BUCKET}/dags/code_base/install_dependencies.sh"},
@@ -55,6 +60,10 @@ JOB_2_PARQUET_TO_BQ = {
     "placement": {"cluster_name": CLUSTER_NAME},
     "pyspark_job": {
         "main_python_file_uri": f"gs://{GCS_BUCKET}/scripts/code_base/transform_to_bq.py",
+        # <<< FIX 2: ADD THE BIGQUERY CONNECTOR JAR
+        # Your second job writes to BigQuery and requires this connector. Without it,
+        # the job would fail with a "ClassNotFoundException" for the "bigquery" format.
+        "jar_file_uris": ["gs://spark-lib/bigquery/spark-bigquery-with-dependencies_2.12-0.34.0.jar"],
     },
 }
 
