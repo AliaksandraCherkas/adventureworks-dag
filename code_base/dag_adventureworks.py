@@ -73,7 +73,7 @@ JOB_2_PARQUET_TO_BQ = {
 
 # --- DAG Definition ---
 with DAG(
-    dag_id="adventureworks_pipeline",
+    dag_id="adventureworks_etl_pipeline",
     # Defines how often the DAG runs. 'None' means it only runs when triggered manually or by an external event.
     schedule=None,
     # The date on which the DAG should first start running.
