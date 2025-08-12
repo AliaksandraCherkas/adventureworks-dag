@@ -80,7 +80,7 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     # If set to True, Airflow would try to run for all missed schedules since the start_date. False is best practice for ETL DAGs.
     catchup=False,
-    tags=["adventure_etl_works"],
+    tags=["adventure_works"],
 ) as dag:
     # This task creates the temporary Dataproc cluster using the CLUSTER_CONFIG defined above.
     create_cluster = DataprocCreateClusterOperator(
